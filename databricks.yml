@@ -1,1 +1,21 @@
+bundle:
+  name: sales-intelligence-dashboard
 
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://dbc-b6f32625-1c21.cloud.databricks.com/browse/folders/2283612813033993?o=7474657520353876
+    variables:
+      catalog_name: dev_catalog
+      schema_name: olist_bronze
+      warehouse_id: dbc-b6f32625-1c21
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-d1daaa43-021c.cloud.databricks.com/browse/folders/3458437107047012?o=7474651764551240
+    variables:
+      catalog_name: prod_catalog
+      schema_name: olist_bronze
+      warehouse_id: dbc-d1daaa43-021c
