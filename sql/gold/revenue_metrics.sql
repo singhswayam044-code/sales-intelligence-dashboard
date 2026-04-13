@@ -18,4 +18,4 @@ WHERE order_placed_at IS NOT NULL
 -- Now all statuses are included so Finance sees full picture
 
 GROUP BY 1, 2   -- grouped by month AND status now
-ORDER BY 1, 2;
+
