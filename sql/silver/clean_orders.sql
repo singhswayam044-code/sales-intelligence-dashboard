@@ -1,5 +1,6 @@
+CREATE SCHEMA IF NOT EXISTS dev_catalog.olist_silver;
 
-
+-- Step 2: Create the enriched orders table
 CREATE OR REPLACE TABLE dev_catalog.olist_silver.orders_enriched AS
 
 SELECT
@@ -8,14 +9,14 @@ SELECT
   o.customer_id,
   o.order_status,
 
-  -- Timestamps cast properly
+  -- Timestamps cast properly (raw data has them as strings)
   CAST(o.order_purchase_timestamp AS TIMESTAMP)        AS order_placed_at,
   CAST(o.order_approved_at AS TIMESTAMP)               AS order_approved_at,
   CAST(o.order_delivered_carrier_date AS TIMESTAMP)    AS shipped_at,
   CAST(o.order_delivered_customer_date AS TIMESTAMP)   AS delivered_at,
   CAST(o.order_estimated_delivery_date AS TIMESTAMP)   AS estimated_delivery_at,
 
-  -- Delivery performance
+  -- Delivery performance calculations
   DATEDIFF(
     CAST(o.order_delivered_customer_date AS TIMESTAMP),
     CAST(o.order_purchase_timestamp AS TIMESTAMP)
@@ -24,7 +25,7 @@ SELECT
   DATEDIFF(
     CAST(o.order_estimated_delivery_date AS TIMESTAMP),
     CAST(o.order_delivered_customer_date AS TIMESTAMP)
-  ) AS days_early_or_late,  -- positive = early, negative = late
+  ) AS days_early_or_late,
 
   -- Customer location
   c.customer_city,
@@ -53,7 +54,7 @@ SELECT
   r.review_comment_title,
   r.review_comment_message,
 
-  -- Product category (translated to English)
+  -- Product category translated to English
   COALESCE(cat.product_category_name_english, 'uncategorized') AS category_name,
   prod.product_weight_g,
   prod.product_length_cm,
@@ -73,7 +74,7 @@ LEFT JOIN dev_catalog.olist_bronze.olist_sellers_dataset s
 
 LEFT JOIN dev_catalog.olist_bronze.olist_order_payments_dataset p
   ON o.order_id = p.order_id
-  AND p.payment_sequential = 1  -- take only first payment row per order
+  AND p.payment_sequential = 1
 
 LEFT JOIN dev_catalog.olist_bronze.olist_order_reviews_dataset r
   ON o.order_id = r.order_id
