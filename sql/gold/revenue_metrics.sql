@@ -16,4 +16,4 @@ FROM dev_catalog.olist_silver.orders_enriched
 WHERE order_placed_at IS NOT NULL
 
 GROUP BY 1, 2
-ORDER BY 1, 2;
+ORDER BY 1, 2:
