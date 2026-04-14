@@ -5,10 +5,6 @@ targets:
   dev:
     mode: development
     default: true
-    workspace:
-      host: ${var.DATABRICKS_HOST_DEV}
 
   prod:
     mode: production
-    workspace:
-      host: ${var.DATABRICKS_HOST_PROD}
