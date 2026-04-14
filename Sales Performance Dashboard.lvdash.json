@@ -20,23 +20,13 @@
     },
     {
       "name": "gross_revenue",
-      "displayName": "Gross Revenue",
+      "displayName": "delivered-only revenue",
       "queryLines": [
         "SELECT\n",
-        "  SUM(gross_revenue) AS gross_revenue\n",
-        "FROM\n",
-        "  dev_catalog.olist_gold.monthly_revenue\n",
-        "WHERE\n",
-        "  month\n",
-        "    = DATE_TRUNC(\n",
-        "      'month',\n",
-        "      (\n",
-        "        SELECT\n",
-        "          MAX(month)\n",
-        "        FROM\n",
-        "          dev_catalog.olist_gold.monthly_revenue\n",
-        "      )\n",
-        "    )"
+        "  ROUND(SUM(CASE WHEN order_status = 'delivered' THEN gross_revenue ELSE 0 END), 2) AS delivered_revenue,\n",
+        "  ROUND(SUM(gross_revenue), 2) AS total_revenue\n",
+        "FROM dev_catalog.olist_gold.monthly_revenue\n",
+        "WHERE month = DATE_TRUNC('month', (SELECT MAX(month) FROM dev_catalog.olist_gold.monthly_revenue));"
       ]
     },
     {
@@ -61,10 +51,11 @@
       "queryLines": [
         "SELECT\r\n",
         "  month,\r\n",
-        "  gross_revenue,\r\n",
-        "  total_orders,\r\n",
-        "  avg_review_score\r\n",
+        "  SUM(CASE WHEN order_status = 'delivered'\r\n",
+        "    THEN gross_revenue ELSE 0 END) AS delivered_revenue,\r\n",
+        "  SUM(gross_revenue)               AS total_revenue\r\n",
         "FROM dev_catalog.olist_gold.monthly_revenue\r\n",
+        "GROUP BY month\r\n",
         "ORDER BY month;"
       ]
     },
@@ -115,6 +106,20 @@
         "ORDER BY total_revenue DESC\r\n",
         "LIMIT 15;"
       ]
+    },
+    {
+      "name": "41788e00",
+      "displayName": "Gross Revenue",
+      "queryLines": [
+        "SELECT\r\n",
+        "  ROUND(SUM(CASE WHEN order_status = 'delivered'\r\n",
+        "    THEN gross_revenue ELSE 0 END), 2) AS delivered_revenue,\r\n",
+        "  ROUND(SUM(gross_revenue), 2)         AS total_revenue\r\n",
+        "FROM dev_catalog.olist_gold.monthly_revenue\r\n",
+        "WHERE month = DATE_TRUNC('month', (\r\n",
+        "  SELECT MAX(month) FROM dev_catalog.olist_gold.monthly_revenue\r\n",
+        "));"
+      ]
     }
   ],
   "pages": [
@@ -129,37 +134,27 @@
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "gross_revenue",
+                  "datasetName": "41788e00",
                   "fields": [
                     {
-                      "name": "gross_revenue",
-                      "expression": "`gross_revenue`"
+                      "name": "median(total_revenue)",
+                      "expression": "MEDIAN(`total_revenue`)"
                     }
                   ],
-                  "disaggregated": true
+                  "disaggregated": false
                 }
               }
             ],
             "spec": {
               "version": 2,
               "frame": {
-                "title": "Gross Revenue",
+                "title": "Gross",
                 "showTitle": true
               },
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "gross_revenue",
-                  "format": {
-                    "type": "number-currency",
-                    "currencyCode": "BRL",
-                    "decimalPlaces": {
-                      "type": "exact",
-                      "places": 2
-                    },
-                    "abbreviation": "none"
-                  },
-                  "displayName": "Gross Revenue"
+                  "fieldName": "median(total_revenue)"
                 }
               }
             }
@@ -232,7 +227,7 @@
               "version": 2,
               "frame": {
                 "showTitle": true,
-                "title": "Avg Delivery Days "
+                "title": "Avg Review Score"
               },
               "widgetType": "counter",
               "encodings": {
@@ -302,11 +297,15 @@
                       "expression": "DATE_TRUNC(\"MONTH\", `month`)"
                     },
                     {
-                      "name": "sum(gross_revenue)",
-                      "expression": "SUM(`gross_revenue`)"
+                      "name": "total_revenue",
+                      "expression": "`total_revenue`"
+                    },
+                    {
+                      "name": "delivered_revenue",
+                      "expression": "`delivered_revenue`"
                     }
                   ],
-                  "disaggregated": false
+                  "disaggregated": true
                 }
               }
             ],
@@ -325,10 +324,17 @@
                   }
                 },
                 "y": {
-                  "fieldName": "sum(gross_revenue)",
                   "scale": {
                     "type": "quantitative"
-                  }
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "total_revenue"
+                    },
+                    {
+                      "fieldName": "delivered_revenue"
+                    }
+                  ]
                 }
               }
             }
@@ -437,7 +443,7 @@
               "version": 2,
               "frame": {
                 "showTitle": true,
-                "title": "Monthly Gross Revenue Trend"
+                "title": "Monthly Gross Revenue Table"
               },
               "widgetType": "table",
               "encodings": {
