@@ -4,18 +4,11 @@ bundle:
 targets:
   dev:
     mode: development
+    default: true
     workspace:
-      host: https://dbc-b6f32625-1c21.cloud.databricks.com/browse/folders/2283612813033993?o=7474657520353876
-    variables:
-      catalog_name: dev_catalog
-      schema_name: olist_bronze
-      warehouse_id: 67e05b0f69ab6101
+      host: ${var.DATABRICKS_HOST_DEV}
 
   prod:
     mode: production
     workspace:
-      host: https://dbc-d1daaa43-021c.cloud.databricks.com/browse/folders/3458437107047012?o=7474651764551240
-    variables:
-      catalog_name: prod_catalog
-      schema_name: olist_bronze
-      warehouse_id: b07f06032e0ef368
+      host: ${var.DATABRICKS_HOST_PROD}
