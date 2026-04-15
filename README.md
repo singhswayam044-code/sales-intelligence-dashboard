@@ -67,12 +67,3 @@ Every dashboard change in this project is:
 | 7 | Simulated bad deploy + rollback | Hotfix |
 | 7 | Proper fix redeployed | Fix |
 
----
-
-## Interview Answer
-
-> "I built a production-grade analytics dashboard on Databricks using the
-> Medallion Architecture with Delta Lake. The project uses Databricks Asset
-> Bundles and GitHub Actions for CI/CD — every dashboard change goes through
-> a Pull Request, gets deployed to a test environment automatically, and can
-> be rolled
